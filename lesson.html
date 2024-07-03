@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div>
+    <select id="languageSelector">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="gu">Gujarati</option>
+    </select>
+  </div>
+  <div id="lessonContent" class="lesson-content">
+    <div id="loadingIndicator" class="loading-indicator"></div>
+  </div>
+  <div id="taskContent" class="task-content"></div>
+  <textarea id="codeInput" placeholder="Enter your code here"></textarea>
+  <button id="runCode">Run Code</button>
+  <iframe id="outputFrame" class="output-frame"></iframe>
+  <button id="nextExerciseButton">Next Exercise</button>
+  <script src="lesson.js"></script>
+</body>
+</html>
