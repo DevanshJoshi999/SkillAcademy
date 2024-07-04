@@ -3,6 +3,7 @@ body {
     background-color: #f0f0f0;
     margin: 0;
     padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .roadmap-container {
@@ -45,20 +46,35 @@ body {
 }
 
 textarea {
-    width: 100%;
-    height: 100px;
+    width: calc(100% - 40px);
+    height: 400px;
     margin-top: 20px;
+    font-size: 16px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 #runCode {
-    margin-top: 10px;
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#runCode:hover {
+    background-color: #0056b3;
 }
 
 .output-frame {
-    width: 100%;
-    height: 200px;
-    margin-top: 20px;
+    width: calc(100% - 40px);
+    height: 400px;
+    margin: 20px;
     border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
 #lessonContent {
@@ -70,11 +86,13 @@ textarea {
 }
 
 #codeInput {
-    width: 100%;
-    height: 100px;
+    width: calc(100% - 40px);
+    height: 400px;
     margin: 20px;
     border: 1px solid #ccc;
     padding: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
 }
 
 #runCode {
@@ -135,4 +153,135 @@ textarea {
 
 .task-content {
     margin: 20px;
+}
+
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.tabs {
+    overflow: hidden;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+}
+
+.tablink {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+.tablink:hover {
+    background-color: #ddd;
+}
+
+.tablink.active {
+    background-color: #ccc;
+}
+
+.tabcontent {
+    display: none;
+    padding: 20px;
+    border-top: none;
+}
+
+
+/* styles.css */
+
+/* Existing styles for modal */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto; /* 10% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%; /* Adjust width as needed */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Box shadow */
+    text-align: center; /* Center align content */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Additional styling */
+.modal-message {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.modal-buttons button {
+    margin: 0 10px; /* Adjust spacing between buttons */
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-buttons button:hover {
+    background-color: #0056b3;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: center; /* Center aligns buttons */
+    margin-top: 20px; /* Adjust margin as needed */
+}
+
+.popup-buttons button {
+    padding: 15px 30px; /* Adjust padding for larger buttons */
+    font-size: 18px; /* Adjust font size */
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 10px; /* Rounded border */
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+    transition: background-color 0.3s;
+    margin: 0 10px; /* Adjust margin between buttons */
+}
+
+.popup-buttons button:first-child {
+    margin-right: 20px; /* Larger margin on the right side of the first button */
+}
+
+.popup-buttons button:hover {
+    background-color: #0056b3;
 }

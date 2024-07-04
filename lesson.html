@@ -14,14 +14,34 @@
       <option value="gu">Gujarati</option>
     </select>
   </div>
-  <div id="lessonContent" class="lesson-content">
-    <div id="loadingIndicator" class="loading-indicator"></div>
+  
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tablink" onclick="openTab(event, 'Lesson')">Lesson</button>
+      <button class="tablink" onclick="openTab(event, 'Code')">Code</button>
+      <button class="tablink" onclick="openTab(event, 'Output')">Output</button>
+    </div>
   </div>
-  <div id="taskContent" class="task-content"></div>
-  <textarea id="codeInput" placeholder="Enter your code here"></textarea>
-  <button id="runCode">Run Code</button>
-  <iframe id="outputFrame" class="output-frame"></iframe>
+
+  <div id="Lesson" class="tabcontent">
+    <div id="lessonContent" class="lesson-content">
+      <div id="loadingIndicator" class="loading-indicator"></div>
+    </div>
+    <div id="taskContent" class="task-content"></div>
+  </div>
+
+  <div id="Code" class="tabcontent">
+    <textarea id="codeInput" placeholder="Enter your code here" rows="10"></textarea>
+    <button id="runCode">Run Code</button>
+  </div>
+
+  <div id="Output" class="tabcontent">
+    <iframe id="outputFrame" class="output-frame"></iframe>
+  </div>
+
   <button id="nextExerciseButton">Next Exercise</button>
+  
   <script src="lesson.js"></script>
+  <script src="tabs.js"></script>
 </body>
 </html>

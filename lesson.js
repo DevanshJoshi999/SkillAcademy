@@ -54,13 +54,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function formatContent(content) {
-        const formattedContent = content
-            .replace(/&bull;/g, '<li>&#8226;</li>') // Replace HTML entities
-            .replace(/^[*-]\s+/gm, '<li>') // Replace plain text bullet points
-            .replace(/\n/g, '<br>'); // Replace new lines with <br>
+        // Sanitize HTML tags and replace line breaks with <br>
+        const sanitizedContent = content
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/&/g, '&amp;')
+            .replace(/\n/g, '<br>');
 
-        // Wrap bullet points with <ul> tags
-        return formattedContent.replace(/<li>/g, '<ul><li>').replace(/<\/li>(?!<li>)/g, '</li></ul>');
+        return sanitizedContent;
     }
 
     async function loadExercise() {
@@ -148,4 +149,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     loadLesson();
+
+    // Disable paste functionality in codeInput textarea
+    codeInput.addEventListener('paste', (event) => {
+        event.preventDefault();
+        alert('Copying and pasting code is disabled in this field.');
+        // Optionally, you can clear the clipboard data to prevent pasting altogether:
+        // const clipboardData = event.clipboardData || window.clipboardData;
+        // clipboardData.setData('text', '');
+    });
+
 });

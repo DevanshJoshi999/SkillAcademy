@@ -1,51 +1,80 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const content = document.getElementById('content');
-  
-    async function getTopics() {
+document.addEventListener('DOMContentLoaded', async () => {
+  const content = document.getElementById('content');
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmMessage = document.getElementById('confirmMessage');
+  const confirmYes = document.getElementById('confirmYes');
+  const confirmNo = document.getElementById('confirmNo');
+
+  // Function to show the confirmation modal
+  function showConfirmation(message, callback) {
+      confirmMessage.textContent = message;
+      confirmModal.style.display = 'block';
+
+      // Listen for click on Yes button
+      confirmYes.addEventListener('click', () => {
+          confirmModal.style.display = 'none';
+          callback(true);
+      });
+
+      // Listen for click on No button
+      confirmNo.addEventListener('click', () => {
+          confirmModal.style.display = 'none';
+          callback(false);
+      });
+  }
+
+  async function getTopics() {
       try {
-        console.log('Fetching topics...');
-        const response = await fetch('https://dev-api.skill.college/skillAcademy/topics/getAll');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const topics = await response.json();
-        console.log('Fetched topics:', topics);
-        return topics.map(topic => ({
-          id: topic.id,
-          title: topic.title
-        }));
+          console.log('Fetching topics...');
+          const response = await fetch('https://dev-api.skill.college/skillAcademy/topics/getAll');
+          if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const topics = await response.json();
+          console.log('Fetched topics:', topics);
+          return topics.map(topic => ({
+              id: topic.id,
+              title: topic.title
+          }));
       } catch (error) {
-        console.error('Error fetching topics:', error);
-        return [];
+          console.error('Error fetching topics:', error);
+          return [];
       }
-    }
-  
-    async function loadTopics() {
+  }
+
+  async function loadTopics() {
       const topics = await getTopics();
       if (topics.length === 0) {
-        content.innerHTML = '<p>No topics available.</p>';
-        return;
+          showConfirmation('Do you want to continue?', (confirmed) => {
+              if (confirmed) {
+                  content.innerHTML = '<p>No topics available.</p>';
+              } else {
+                  window.location.href = 'index.html'; // Redirect to home or handle as needed
+              }
+          });
+          return;
       }
-  
+
       topics.forEach((topic, index) => {
-        const topicElement = document.createElement('div');
-        topicElement.className = 'topic';
-        topicElement.innerHTML = `<div class="icon">▶</div>`;
-        topicElement.addEventListener('click', () => {
-          if (confirm(`Do you want to continue to ${topic.title}?`)) {
-            window.location.href = `lesson.html?topicId=${topic.id}`;
+          const topicElement = document.createElement('div');
+          topicElement.className = 'topic';
+          topicElement.innerHTML = `<div class="icon">▶</div>`;
+          topicElement.addEventListener('click', () => {
+              showConfirmation(`Do you want to continue to ${topic.title}?`, (confirmed) => {
+                  if (confirmed) {
+                      window.location.href = `lesson.html?topicId=${topic.id}`;
+                  }
+              });
+          });
+          content.appendChild(topicElement);
+
+          if (index < topics.length - 1) {
+              const separator = document.createElement('div');
+              separator.className = 'separator';
+              content.appendChild(separator);
           }
-        });
-        content.appendChild(topicElement);
-  
-        if (index < topics.length - 1) {
-          const separator = document.createElement('div');
-          separator.className = 'separator';
-          content.appendChild(separator);
-        }
       });
-    }
-  
-    loadTopics();
-  });
-  
+  }
+
+  loadTopics();
+});
