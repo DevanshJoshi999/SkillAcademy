@@ -7,14 +7,6 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div>
-    <select id="languageSelector">
-      <option value="en">English</option>
-      <option value="hi">Hindi</option>
-      <option value="gu">Gujarati</option>
-    </select>
-  </div>
-  
   <div class="tabs-container">
     <div class="tabs">
       <button class="tablink" onclick="openTab(event, 'Lesson')">Lesson</button>
@@ -23,10 +15,17 @@
     </div>
   </div>
 
+  <div class="language-selector-container">
+    <select id="languageSelector">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="gu">Gujarati</option>
+    </select>
+  </div>
+  
   <div id="Lesson" class="tabcontent">
-    <div id="lessonContent" class="lesson-content">
-      <div id="loadingIndicator" class="loading-indicator"></div>
-    </div>
+    <div id="loadingIndicator" class="loading-indicator">Loading...</div>
+    <div id="lessonContent" class="lesson-content"></div>
     <div id="taskContent" class="task-content"></div>
   </div>
 

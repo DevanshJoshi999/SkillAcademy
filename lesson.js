@@ -6,8 +6,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nextExerciseButton = document.getElementById('nextExerciseButton');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const taskContent = document.getElementById('taskContent');
+
     let currentExerciseIndex = 0; // Keeps track of the current exercise
     let exercises = []; // Store exercises globally
+
+    languageSelector.addEventListener('change', () => {
+        loadExercise();
+    });
 
     async function getExercises(topicId) {
         try {
@@ -54,35 +59,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function formatContent(content) {
-        // Sanitize HTML tags and replace line breaks with <br>
-        const sanitizedContent = content
+        // Reverse HTML entity encoding for <, >, etc.
+        const reversedContent = content
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+        
+        // Replace line breaks with <br> and escape remaining HTML entities
+        const sanitizedContent = reversedContent
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            .replace(/&/g, '&amp;')
-            .replace(/\n/g, '<br>');
-
+            .replace(/\n/g, '<br>')
+            .replace(/\s\s+/g, ' '); // Replace multiple spaces with single space
+    
         return sanitizedContent;
     }
 
     async function loadExercise() {
-        if (!exercises || currentExerciseIndex >= exercises.length) {
-            lessonContent.innerHTML = 'No more exercises available.';
-            nextExerciseButton.style.display = 'none';
+        if (currentExerciseIndex >= exercises.length) {
+            // No more exercises available
+            lessonContent.innerHTML = '<p>No exercises remaining for the current topic.</p>';
+            taskContent.innerHTML = '';
+            nextExerciseButton.disabled = true;
             return;
         }
 
         loadingIndicator.style.display = 'block'; // Show loading indicator
-        lessonContent.style.opacity = '0.5'; // Reduce opacity while loading
-        taskContent.innerHTML = ''; // Clear previous task content
+        lessonContent.style.display = 'none'; // Hide lesson content while loading
+        taskContent.style.display = 'none'; // Hide task content while loading
 
         const exercise = exercises[currentExerciseIndex];
 
         const contentElement = document.createElement('div');
 
+        const formattedTitle = formatContent(exercise.title);
         const formattedContent = formatContent(exercise.content);
 
         contentElement.innerHTML = `
-            <h1>${exercise.title}</h1>
+            <h1>${formattedTitle}</h1>
             <p>${formattedContent}</p>
         `;
 
@@ -96,10 +110,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tasks = await getTasks(exercise.id);
         if (tasks.length > 0) {
             const taskList = document.createElement('ul');
-            tasks.forEach(task => {
+            tasks.forEach((task, index) => {
                 console.log('Appending task:', task.description); // Log the task description
                 const taskItem = document.createElement('li');
-                taskItem.textContent = task.description; // Set as plain text
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.disabled = true; // Disable manual checking
+                checkbox.id = `task_${index + 1}`; // Unique ID for each checkbox
+
+                // Preserve HTML tags in task description
+                const taskDescription = formatContent(task.description);
+                taskItem.innerHTML = `
+                    <label for="${checkbox.id}">
+                        <input type="checkbox" id="${checkbox.id}" disabled>
+                        ${taskDescription}
+                    </label>`;
                 taskList.appendChild(taskItem);
             });
             taskContent.innerHTML = '<h2>Tasks</h2>';
@@ -109,7 +134,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         loadingIndicator.style.display = 'none'; // Hide loading indicator
-        lessonContent.style.opacity = '1'; // Restore opacity after loading
+        lessonContent.style.display = 'block'; // Show lesson content after loading
+        taskContent.style.display = 'block'; // Show task content after loading
 
         document.getElementById('runCode').addEventListener('click', () => {
             const userCode = codeInput.value;
@@ -121,9 +147,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </html>
             `;
             outputFrame.srcdoc = output;
+
+            // Validate code
+            tasks.forEach((task, index) => {
+                const checkbox = document.getElementById(`task_${index + 1}`);
+                if (validateCode(userCode, task.validate_code)) {
+                    checkbox.checked = true;
+                } else {
+                    checkbox.checked = false;
+                }
+            });
+
+            // Enable next exercise button when all tasks are completed
+            const allTasksCompleted = tasks.every((task, index) => {
+                const checkbox = document.getElementById(`task_${index + 1}`);
+                return checkbox.checked;
+            });
+            nextExerciseButton.disabled = !allTasksCompleted;
         });
 
         nextExerciseButton.style.display = 'block'; // Display next exercise button
+        nextExerciseButton.disabled = true; // Disable next exercise button initially
+
+        nextExerciseButton.addEventListener('click', () => {
+            currentExerciseIndex++;
+            if (currentExerciseIndex <= exercises.length) {
+                loadExercise();
+            } else {
+                // Handle end of exercises scenario
+                lessonContent.innerHTML = '<p>No exercises remaining for the current topic.</p>';
+                taskContent.innerHTML = '';
+                nextExerciseButton.disabled = true;
+            }
+        });
+    }
+
+    function validateCode(userCode, validateArray) {
+        let remainingCode = userCode;
+        for (let i = 0; i < validateArray.length; i++) {
+            const index = remainingCode.indexOf(validateArray[i]);
+            if (index === -1) {
+                return false;
+            }
+            remainingCode = remainingCode.slice(index + validateArray[i].length);
+        }
+        return true;
     }
 
     async function loadLesson() {
@@ -137,14 +205,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         exercises = await getExercises(topicId);
 
         if (exercises.length > 0) {
-            nextExerciseButton.addEventListener('click', () => {
-                currentExerciseIndex++;
-                loadExercise();
-            });
-
             loadExercise();
         } else {
-            lessonContent.innerHTML = 'No exercises available for this topic.';
+            lessonContent.innerHTML = '<p>No exercises available for this topic.</p>';
+            taskContent.innerHTML = '';
+            nextExerciseButton.disabled = true;
         }
     }
 
@@ -154,9 +219,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     codeInput.addEventListener('paste', (event) => {
         event.preventDefault();
         alert('Copying and pasting code is disabled in this field.');
-        // Optionally, you can clear the clipboard data to prevent pasting altogether:
-        // const clipboardData = event.clipboardData || window.clipboardData;
-        // clipboardData.setData('text', '');
     });
-
 });

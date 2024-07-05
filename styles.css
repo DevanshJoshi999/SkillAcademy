@@ -285,3 +285,32 @@ textarea {
 .popup-buttons button:hover {
     background-color: #0056b3;
 }
+
+.language-selector-container {
+    text-align: center;
+    margin: 20px 0;
+}
+  
+  .loading-indicator {
+    display: none; /* Initially hidden */
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  
+  #nextExerciseButton:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+  }
+  
+  .task-content ul {
+    list-style-type: none; /* Remove bullet points */
+    padding-left: 0;
+  }
+  
+  .task-content li {
+    display: flex;
+    align-items: center;
+  }
+  
+  
