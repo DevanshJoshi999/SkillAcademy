@@ -169,17 +169,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         nextExerciseButton.style.display = 'block'; // Display next exercise button
         nextExerciseButton.disabled = true; // Disable next exercise button initially
 
-        nextExerciseButton.addEventListener('click', () => {
-            currentExerciseIndex++;
-            if (currentExerciseIndex <= exercises.length) {
-                loadExercise();
-            } else {
-                // Handle end of exercises scenario
-                lessonContent.innerHTML = '<p>No exercises remaining for the current topic.</p>';
-                taskContent.innerHTML = '';
-                nextExerciseButton.disabled = true;
-            }
-        });
+
+        nextExerciseButton.removeEventListener("click", handleNextExerciseButtonClick);
+        nextExerciseButton.addEventListener('click', handleNextExerciseButtonClick);
+    }
+
+    function handleNextExerciseButtonClick(){
+        currentExerciseIndex++;
+        if(currentExerciseIndex <= exercise.length){
+            loadExercise();
+        }
+        else{
+            lessonContent.innerHTML = "<p>No exercises remaining for the current topic</p>"
+            taskContent.innerHTML = ""
+            nextExerciseButton.disabled = true
+        }
     }
 
     function validateCode(userCode, validateArray) {
