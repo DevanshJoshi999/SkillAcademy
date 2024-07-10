@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function handleNextExerciseButtonClick(){
         currentExerciseIndex++;
-        if(currentExerciseIndex <= exercise.length){
+        if(currentExerciseIndex <= exercises.length){
             loadExercise();
         }
         else{
