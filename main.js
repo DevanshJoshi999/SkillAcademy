@@ -23,10 +23,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
   }
 
+  async function getHeaders() {
+    const accessToken = sessionStorage.getItem('accessToken');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    };
+  }
+
   async function getTopics() {
       try {
           console.log('Fetching topics...');
-          const response = await fetch('https://dev-api.skill.college/skillAcademy/topics/getAll');
+          const headers = await getHeaders();
+          const response = await fetch('https://dev-api.skill.college/skillAcademy/topics/getAll', { headers });
           if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
           }

@@ -14,10 +14,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadExercise();
     });
 
+    async function getHeaders() {
+        const accessToken = sessionStorage.getItem('accessToken');
+        return {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        };
+      }
+
     async function getExercises(topicId) {
         try {
             console.log(`Fetching exercises for topic ID: ${topicId}...`);
-            const response = await fetch(`https://dev-api.skill.college/skillAcademy/exercises/getAll`);
+            const headers = await getHeaders();
+            const response = await fetch(`https://dev-api.skill.college/skillAcademy/exercises/getAll`, { headers });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -33,7 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function getTasks(exerciseId) {
         try {
             console.log(`Fetching tasks for exercise ID: ${exerciseId}...`);
-            const response = await fetch(`https://dev-api.skill.college/skillAcademy/tasks/getAll`);
+            const headers = await getHeaders();
+            const response = await fetch(`https://dev-api.skill.college/skillAcademy/tasks/getAll`, { headers });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -89,6 +99,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         taskContent.style.display = 'none'; // Hide task content while loading
 
         const exercise = exercises[currentExerciseIndex];
+
+        codeInput.value = '';
 
         const contentElement = document.createElement('div');
 
