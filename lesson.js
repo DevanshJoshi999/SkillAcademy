@@ -232,6 +232,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         exercises = await getExercises(topicId);
 
+        exercises.sort((a, b) => a.order - b.order);
+
         if (exercises.length > 0) {
             loadExercise();
         } else {
