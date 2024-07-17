@@ -17,10 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function getHeaders() {
         const accessToken = sessionStorage.getItem('accessToken');
         return {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
         };
-      }
+    }
 
     async function getExercises(topicId) {
         try {
@@ -100,23 +100,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const exercise = exercises[currentExerciseIndex];
 
-        codeInput.value = '';
+        codeInput.value = exercise.prebuilt_code || ''; // Pre-fill code textarea with prebuilt code if available
 
         const contentElement = document.createElement('div');
 
         const formattedTitle = formatContent(exercise.title);
         const formattedContent = formatContent(exercise.content);
 
+        let imageHtml = '';
+        if (exercise.image_url) {
+            imageHtml = `<div style="background-color: black; padding: 10px; display: inline-block;">
+                            <img src="${exercise.image_url}" alt="Exercise Image" style="max-width: 100%; margin-top: 20px;">
+                        </div>`;
+        }
+
+
         contentElement.innerHTML = `
             <h1>${formattedTitle}</h1>
             <p>${formattedContent}</p>
+            ${imageHtml}
         `;
+
 
         lessonContent.innerHTML = ''; // Clear previous content
         lessonContent.appendChild(contentElement);
 
         const translatedContent = await translateContent(exercise.content, languageSelector.value);
         contentElement.querySelector('p').innerHTML = formatContent(translatedContent);
+
 
         // Fetch and display tasks
         const tasks = await getTasks(exercise.id);
@@ -160,6 +171,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
             outputFrame.srcdoc = output;
 
+            openTab(event, 'Output');
+
             // Validate code
             tasks.forEach((task, index) => {
                 const checkbox = document.getElementById(`task_${index + 1}`);
@@ -181,20 +194,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         nextExerciseButton.style.display = 'block'; // Display next exercise button
         nextExerciseButton.disabled = true; // Disable next exercise button initially
 
-
         nextExerciseButton.removeEventListener("click", handleNextExerciseButtonClick);
         nextExerciseButton.addEventListener('click', handleNextExerciseButtonClick);
     }
 
-    function handleNextExerciseButtonClick(){
+    function handleNextExerciseButtonClick() {
+
+        outputFrame.srcdoc = '';
+
         currentExerciseIndex++;
-        if(currentExerciseIndex <= exercises.length){
+        if (currentExerciseIndex < exercises.length) {
             loadExercise();
-        }
-        else{
-            lessonContent.innerHTML = "<p>No exercises remaining for the current topic</p>"
-            taskContent.innerHTML = ""
-            nextExerciseButton.disabled = true
+        } else {
+            window.location.href = 'index.html';
         }
     }
 

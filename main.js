@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', async () => {
               if (confirmed) {
                   content.innerHTML = '<p>No topics available.</p>';
               } else {
-                  window.location.href = 'index.html'; // Redirect to home or handle as needed
-              }
+                  window.location.href = 'login.html'; // Redirect to home or handle as needed
+            }
           });
           return;
       }
