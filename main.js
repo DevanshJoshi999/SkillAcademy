@@ -51,6 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
   }
 
+  function chcekLogin(){
+    let token = sessionStorage.getItem('accessToken')
+    if(token == undefined){
+        window.location.href = 'login.html';
+       
+    }
+  }
   async function loadTopics() {
       const topics = await getTopics();
       if (topics.length === 0) {
@@ -84,6 +91,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
       });
   }
-
+  chcekLogin()
   loadTopics();
 });
