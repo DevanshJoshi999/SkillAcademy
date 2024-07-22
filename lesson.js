@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentExerciseIndex = 0; // Keeps track of the current exercise
     let exercises = []; // Store exercises globally
+    let progressData = [];
 
     languageSelector.addEventListener('change', () => {
         loadExercise();
@@ -55,6 +56,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             return [];
         }
     }
+
+    async function createOrUpdateProgress(progress) {
+        try {
+          const headers = await getHeaders();
+          const response = await fetch('https://dev-api.skill.college/skillAcademy/progress/create/', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(progress)
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+        } catch (error) {
+          console.error('Error updating progress:', error);
+        }
+      }
+
+      async function getAllProgress() {
+        try {
+          const headers = await getHeaders();
+          const response = await fetch('https://dev-api.skill.college/skillAcademy/progress/getAll', { headers });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const progress = await response.json();
+          console.log('Fetched progress:', progress);
+          return progress.map(item => ({
+            courseId: item.course_id,
+            topicId: item.topic_id,
+            exerciseId: item.exercise_id,
+            taskId: item.task_id,
+            completed: item.completed
+          }));
+        } catch (error) {
+          console.error('Error fetching progress:', error);
+          return [];
+        }
+      }
+      
+    
 
     async function translateContent(content, language) {
         try {
@@ -133,6 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tasks = await getTasks(exercise.id);
         if (tasks.length > 0) {
             const taskList = document.createElement('ul');
+            const progress = await getAllProgress();
             tasks.forEach((task, index) => {
                 console.log('Appending task:', task.description); // Log the task description
                 const taskItem = document.createElement('li');
@@ -149,6 +191,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${taskDescription}
                     </label>`;
                 taskList.appendChild(taskItem);
+                const completedProgress = progress.find(
+                    item => item.exerciseId === exercise.id && item.taskId === task.id && item.completed
+                );
+                if (completedProgress) {
+                    checkbox.checked = true;
+                }
             });
             taskContent.innerHTML = '<h2>Tasks</h2>';
             taskContent.appendChild(taskList);
@@ -160,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lessonContent.style.display = 'block'; // Show lesson content after loading
         taskContent.style.display = 'block'; // Show task content after loading
 
-        document.getElementById('runCode').addEventListener('click', () => {
+        document.getElementById('runCode').addEventListener('click', async () => {
             const userCode = codeInput.value;
             const output = `
                 <html>
@@ -174,14 +222,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             openTab(event, 'Output');
 
             // Validate code
-            tasks.forEach((task, index) => {
+            for (let index = 0; index < tasks.length; index++) {
+                const task = tasks[index];
                 const checkbox = document.getElementById(`task_${index + 1}`);
                 if (validateCode(userCode, task.validate_code)) {
                     checkbox.checked = true;
+                    const progress = {
+                        "course_id": '58f8124b-0d4f-42a8-9dd8-3499ab12cf02',
+                        "topic_id": exercise.topic_id,
+                        "exercise_id": exercise.id,
+                        "task_id": task.id,
+                        "completed": true
+                    };
+                    try {
+                        await createOrUpdateProgress(progress);
+                    } catch (error) {
+                        console.error('Error updating progress:', error);
+                        // Handle error as needed, e.g., notify the user
+                    }
                 } else {
                     checkbox.checked = false;
                 }
-            });
+            }
 
             // Enable next exercise button when all tasks are completed
             const allTasksCompleted = tasks.every((task, index) => {
