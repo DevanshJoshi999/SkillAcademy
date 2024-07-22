@@ -5,10 +5,9 @@ document.getElementById('login-form').addEventListener('submit', async function 
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('https://dev-api.skill.college/user/login', {
+        const response = await fetch(`https://dev-api.skill.college/user/skillAcademy/login?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: new URLSearchParams({ 'username': username, 'password': password })
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         });
 
         if (!response.ok) {

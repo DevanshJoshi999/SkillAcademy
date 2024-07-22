@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log('Appending task:', task.description); // Log the task description
                 const taskItem = document.createElement('li');
                 const checkbox = document.createElement('input');
+                taskItem.appendChild(checkbox);
                 checkbox.type = 'checkbox';
                 checkbox.disabled = true; // Disable manual checking
                 checkbox.id = `task_${index + 1}`; // Unique ID for each checkbox
