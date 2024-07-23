@@ -178,20 +178,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             tasks.forEach((task, index) => {
                 console.log('Appending task:', task.description); // Log the task description
                 const taskItem = document.createElement('li');
+                const checkboxID = `task${index + 1}`;
+                const checkboxLabel = document.createElement("label");
+                checkboxLabel.htmlFor = checkboxID;
                 const checkbox = document.createElement('input');
                 taskItem.appendChild(checkbox);
                 checkbox.type = 'checkbox';
                 checkbox.disabled = true; // Disable manual checking
-                checkbox.id = `task_${index + 1}`; // Unique ID for each checkbox
+                checkbox.id = checkboxID;// Unique ID for each checkbox
 
                 // Preserve HTML tags in task description
-                const taskDescription = formatContent(task.description);
-                taskItem.innerHTML = `
-                    <label for="${checkbox.id}">
-                        <input type="checkbox" id="${checkbox.id}" disabled>
-                        ${taskDescription}
-                    </label>`;
-                taskList.appendChild(taskItem);
+                const taskDescription = document.createTextNode(task.description);
+
+                checkboxLabel.appendChild(checkbox)
+                checkboxLabel.appendChild(taskDescription)
+                taskList.appendChild(checkboxLabel);
+                taskList.appendChild(taskItem)
                 const completedProgress = progress.find(
                     item => item.exerciseId === exercise.id && item.taskId === task.id && item.completed
                 );
