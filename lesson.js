@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tasks.forEach((task, index) => {
                 console.log('Appending task:', task.description); // Log the task description
                 const taskItem = document.createElement('li');
-                const checkboxID = `task${index + 1}`;
+                const checkboxID = `task_${index + 1}`;
                 const checkboxLabel = document.createElement("label");
                 checkboxLabel.htmlFor = checkboxID;
                 const checkbox = document.createElement('input');
@@ -194,6 +194,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 checkboxLabel.appendChild(taskDescription)
                 taskList.appendChild(checkboxLabel);
                 taskList.appendChild(taskItem)
+                console.log(exercise.id,":",task.id,)
+                console.log(exercise);
                 const completedProgress = progress.find(
                     item => item.exerciseId === exercise.id && item.taskId === task.id && item.completed
                 );
@@ -247,17 +249,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                     checkbox.checked = false;
                 }
             }
-
-            // Enable next exercise button when all tasks are completed
             const allTasksCompleted = tasks.every((task, index) => {
                 const checkbox = document.getElementById(`task_${index + 1}`);
                 return checkbox.checked;
             });
+            console.log(allTasksCompleted);
             nextExerciseButton.disabled = !allTasksCompleted;
+            // Enable next exercise button when all tasks are completed
         });
+        const allTasksCompleted = tasks.every((task, index) => {
+            const checkbox = document.getElementById(`task_${index + 1}`);
+            return checkbox.checked;
+        });
+        console.log(allTasksCompleted);
+        nextExerciseButton.disabled = !allTasksCompleted;
+        console.log(tasks);
 
         nextExerciseButton.style.display = 'block'; // Display next exercise button
-        nextExerciseButton.disabled = true; // Disable next exercise button initially
+        // nextExerciseButton.disabled = true; // Disable next exercise button initially
 
         nextExerciseButton.removeEventListener("click", handleNextExerciseButtonClick);
         nextExerciseButton.addEventListener('click', handleNextExerciseButtonClick);
