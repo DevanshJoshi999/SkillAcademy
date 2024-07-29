@@ -4,10 +4,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const outputFrame = document.getElementById('outputFrame');
     const languageSelector = document.getElementById('languageSelector');
     const nextExerciseButton = document.getElementById('nextExerciseButton');
+    const previousExerciseButton = document.getElementById('previousExerciseButton');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const taskContent = document.getElementById('taskContent');
 
-    let currentExerciseIndex = 0; // Keeps track of the current exercise
+    let currentExerciseIndex = parseInt(sessionStorage.getItem('currentExerciseIndex')) || 0; // Initialize from sessionStorage or default to 0
     let exercises = []; // Store exercises globally
     let progressData = [];
 
@@ -59,43 +60,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function createOrUpdateProgress(progress) {
         try {
-          const headers = await getHeaders();
-          const response = await fetch('https://dev-api.skill.college/skillAcademy/progress/create/', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(progress)
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+            const headers = await getHeaders();
+            const response = await fetch('https://dev-api.skill.college/skillAcademy/progress/create/', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(progress)
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
         } catch (error) {
-          console.error('Error updating progress:', error);
+            console.error('Error updating progress:', error);
         }
-      }
+    }
 
-      async function getAllProgress() {
+    async function getAllProgress() {
         try {
-          const headers = await getHeaders();
-          const response = await fetch('https://dev-api.skill.college/skillAcademy/progress/getAll', { headers });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const progress = await response.json();
-          console.log('Fetched progress:', progress);
-          return progress.map(item => ({
-            courseId: item.course_id,
-            topicId: item.topic_id,
-            exerciseId: item.exercise_id,
-            taskId: item.task_id,
-            completed: item.completed
-          }));
+            const headers = await getHeaders();
+            const response = await fetch('https://dev-api.skill.college/skillAcademy/progress/getAll', { headers });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const progress = await response.json();
+            console.log('Fetched progress:', progress);
+            return progress.map(item => ({
+                courseId: item.course_id,
+                topicId: item.topic_id,
+                exerciseId: item.exercise_id,
+                taskId: item.task_id,
+                completed: item.completed
+            }));
         } catch (error) {
-          console.error('Error fetching progress:', error);
-          return [];
+            console.error('Error fetching progress:', error);
+            return [];
         }
-      }
-      
-    
+    }
 
     async function translateContent(content, language) {
         try {
@@ -127,11 +126,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function loadExercise() {
+        console.log("Loading exercise at index:", currentExerciseIndex);
         if (currentExerciseIndex >= exercises.length) {
             // No more exercises available
             lessonContent.innerHTML = '<p>No exercises remaining for the current topic.</p>';
             taskContent.innerHTML = '';
             nextExerciseButton.disabled = true;
+            previousExerciseButton.disabled = true;
             return;
         }
 
@@ -155,20 +156,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>`;
         }
 
-
         contentElement.innerHTML = `
             <h1>${formattedTitle}</h1>
             <p>${formattedContent}</p>
             ${imageHtml}
         `;
 
-
         lessonContent.innerHTML = ''; // Clear previous content
         lessonContent.appendChild(contentElement);
 
         const translatedContent = await translateContent(exercise.content, languageSelector.value);
         contentElement.querySelector('p').innerHTML = formatContent(translatedContent);
-
 
         // Fetch and display tasks
         const tasks = await getTasks(exercise.id);
@@ -182,19 +180,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const checkboxLabel = document.createElement("label");
                 checkboxLabel.htmlFor = checkboxID;
                 const checkbox = document.createElement('input');
-                taskItem.appendChild(checkbox);
                 checkbox.type = 'checkbox';
                 checkbox.disabled = true; // Disable manual checking
-                checkbox.id = checkboxID;// Unique ID for each checkbox
+                checkbox.id = checkboxID;
+                console.log(checkboxID); // Unique ID for each checkbox
+                taskItem.appendChild(checkbox);
 
                 // Preserve HTML tags in task description
                 const taskDescription = document.createTextNode(task.description);
 
-                checkboxLabel.appendChild(checkbox)
-                checkboxLabel.appendChild(taskDescription)
+                checkboxLabel.appendChild(checkbox);
+                checkboxLabel.appendChild(taskDescription);
                 taskList.appendChild(checkboxLabel);
-                taskList.appendChild(taskItem)
-                console.log(exercise.id,":",task.id,)
+                taskList.appendChild(taskItem);
+                console.log(exercise.id, ":", task.id);
                 console.log(exercise);
                 const completedProgress = progress.find(
                     item => item.exerciseId === exercise.id && item.taskId === task.id && item.completed
@@ -226,11 +225,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             openTab(event, 'Output');
 
+            console.log(tasks);
+            console.log(tasks.length);
             // Validate code
             for (let index = 0; index < tasks.length; index++) {
                 const task = tasks[index];
+                console.log("Task Out of IF : "+task);
                 const checkbox = document.getElementById(`task_${index + 1}`);
                 if (validateCode(userCode, task.validate_code)) {
+                    console.log(index+1);
+                    console.log("Task In If : ",task);
+
                     checkbox.checked = true;
                     const progress = {
                         "course_id": '58f8124b-0d4f-42a8-9dd8-3499ab12cf02',
@@ -239,7 +244,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         "task_id": task.id,
                         "completed": true
                     };
+                    console.log("Progaress body : ",progress);
                     try {
+                        console.log("I am calling");
                         await createOrUpdateProgress(progress);
                     } catch (error) {
                         console.error('Error updating progress:', error);
@@ -256,7 +263,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log(allTasksCompleted);
             nextExerciseButton.disabled = !allTasksCompleted;
             // Enable next exercise button when all tasks are completed
-        });
+        }); 
+
         const allTasksCompleted = tasks.every((task, index) => {
             const checkbox = document.getElementById(`task_${index + 1}`);
             return checkbox.checked;
@@ -266,21 +274,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log(tasks);
 
         nextExerciseButton.style.display = 'block'; // Display next exercise button
-        // nextExerciseButton.disabled = true; // Disable next exercise button initially
+        previousExerciseButton.style.display = 'block'; // Display previous exercise button
 
         nextExerciseButton.removeEventListener("click", handleNextExerciseButtonClick);
         nextExerciseButton.addEventListener('click', handleNextExerciseButtonClick);
+
+        previousExerciseButton.removeEventListener("click", handlePreviousExerciseButtonClick);
+        previousExerciseButton.addEventListener('click', handlePreviousExerciseButtonClick);
     }
 
     function handleNextExerciseButtonClick() {
-
         outputFrame.srcdoc = '';
 
         currentExerciseIndex++;
         if (currentExerciseIndex < exercises.length) {
+            sessionStorage.setItem('currentExerciseIndex', currentExerciseIndex); // Save index in sessionStorage
             loadExercise();
         } else {
             window.location.href = 'index.html';
+        }
+    }
+
+    function handlePreviousExerciseButtonClick() {
+        outputFrame.srcdoc = '';
+
+        currentExerciseIndex--;
+        if (currentExerciseIndex >= 0) {
+            sessionStorage.setItem('currentExerciseIndex', currentExerciseIndex); // Save index in sessionStorage
+            loadExercise();
+        } else {
+            currentExerciseIndex = 0; // Ensure we don't go below 0
         }
     }
 
@@ -303,20 +326,61 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('No topic selected');
             return;
         }
-
+    
         exercises = await getExercises(topicId);
-
         exercises.sort((a, b) => a.order - b.order);
-
+    
         if (exercises.length > 0) {
-            loadExercise();
+            try {
+                const progress = await getAllProgress();
+                console.log("Fetched progress:", progress);
+    
+                // Create a map for progress data based on exerciseId
+                const progressMap = progress.reduce((map, item) => {
+                    if (!map[item.exercise_id]) {
+                        map[item.exercise_id] = [];
+                    }
+                    map[item.exercise_id].push(item);
+                    return map;
+                }, {});
+    
+                console.log("Progress Map:", progressMap); // Debugging output
+    
+                // Find the first incomplete exercise
+                const firstIncompleteExerciseIndex = exercises.findIndex(exercise => {
+                    // Fetch progress for the current exercise
+                    const progressForExercise = progressMap[exercise.id] || [];
+    
+                    // Check completeness based on tasks
+                    const tasksCount = exercise.tasks ? exercise.tasks.length : 0;
+                    const completedCount = progressForExercise.filter(item => item.completed).length;
+    
+                    console.log(`Exercise ID: ${exercise.id}, Tasks Count: ${tasksCount}, Completed Count: ${completedCount}`);
+    
+                    // If there are tasks and completed count is less than tasks count, it's incomplete
+                    return tasksCount > 0 && completedCount < tasksCount;
+                });
+    
+                console.log("First Incomplete Exercise Index:", firstIncompleteExerciseIndex); // Debugging output
+    
+                // Set currentExerciseIndex to the first incomplete exercise, or default to 0 if all are complete
+                currentExerciseIndex = firstIncompleteExerciseIndex !== -1 ? firstIncompleteExerciseIndex : 0;
+                sessionStorage.setItem('currentExerciseIndex', currentExerciseIndex); // Save index in sessionStorage
+    
+                console.log("Setting currentExerciseIndex to:", currentExerciseIndex); // Debugging output
+    
+                loadExercise();
+            } catch (error) {
+                console.error("Error loading lesson:", error);
+            }
         } else {
             lessonContent.innerHTML = '<p>No exercises available for this topic.</p>';
             taskContent.innerHTML = '';
             nextExerciseButton.disabled = true;
+            previousExerciseButton.disabled = true;
         }
     }
-
+    
     loadLesson();
 
     // Disable paste functionality in codeInput textarea
