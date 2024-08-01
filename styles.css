@@ -11,16 +11,37 @@ body {
     flex-direction: column;
     align-items: center;
     margin-top: 50px;
-}
+  }
 
 .topic {
     display: flex;
-    flex-direction: column;
     align-items: center;
     margin: 16px 0;
+  }
+
+.card {
+    display: flex;
+    flex-direction: row; /* Place items side by side */
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    width: 300px; /* Adjust width as needed */
+  }
+
+.card:hover {
+    transform: scale(1.05);
 }
 
 .icon {
+    font-size: 40px;
+    margin-right: 20px; /* Space between icon and title */
+  }
+
+/* .icon {
     font-size: 40px;
     cursor: pointer;
     background-color: #fff;
@@ -31,13 +52,27 @@ body {
     align-items: center;
     justify-content: center;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
+} */
+
+.topic-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
 }
 
-.separator {
+.topic-level {
+    font-size: 16px;
+    color: #666;
+    margin-left: 20px; /* Space between card and level */
+  }
+
+  .separator {
     width: 2px;
     height: 50px;
     background-color: grey;
-}
+    margin: 16px 0;
+  }
 
 .lesson-content {
     margin: 20px;
