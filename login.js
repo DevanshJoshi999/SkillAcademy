@@ -20,7 +20,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
 
         if (accessToken) {
             // Save the access token (consider using session storage or cookies for security)
-            sessionStorage.setItem('accessToken', accessToken);
+            localStorage.setItem('accessToken', accessToken);
 
             // Redirect to the index.html (roadmap page)
             window.location.href = 'index.html';

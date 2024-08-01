@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function getHeaders() {
-    const accessToken = sessionStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("accessToken");
     return {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function chcekLogin() {
-    let token = sessionStorage.getItem("accessToken");
+    let token = localStorage.getItem("accessToken");
     if (token == undefined) {
       window.location.href = "login.html";
     }
