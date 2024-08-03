@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("Fetching topics...");
       const headers = await getHeaders();
       const response = await fetch(
-        "https://dev-api.skill.college/skillAcademy/topics/getAll",
+        "https://api.skill.college/skillAcademy/topics/getAll",
         { headers }
       );
       if (!response.ok) {

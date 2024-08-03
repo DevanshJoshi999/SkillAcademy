@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // const params = new URLSearchParams(window.location.search);
   // const currIndexFromUrl = params.get("currentExerciseIndex");
   console.log(localStorage.getItem("currentExerciseIndex"));
-  let currentExerciseIndex =  parseInt(localStorage.getItem("currentExerciseIndex")) || 0; // Initialize from sessionStorage or default to 0
+  let currentExerciseIndex =
+    parseInt(localStorage.getItem("currentExerciseIndex")) || 0; // Initialize from sessionStorage or default to 0
   // let currentExerciseIndex =  currIndexFromUrl; // Initialize from sessionStorage or default to 0
   let exercises = []; // Store exercises globally
   let progressData = [];
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // // console.log(`Fetching exercises for topic ID: ${topicId}...`);
       const headers = await getHeaders();
       const response = await fetch(
-        `https://dev-api.skill.college/skillAcademy/exercises/getAll`,
+        `https://api.skill.college/skillAcademy/exercises/getAll`,
         { headers }
       );
       if (!response.ok) {
@@ -54,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // console.log(`Fetching tasks for exercise ID: ${exerciseId}...`);
       const headers = await getHeaders();
       const response = await fetch(
-        `https://dev-api.skill.college/skillAcademy/tasks/getAll`,
+        `https://api.skill.college/skillAcademy/tasks/getAll`,
         { headers }
       );
       if (!response.ok) {
@@ -73,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const headers = await getHeaders();
       const response = await fetch(
-        "https://dev-api.skill.college/skillAcademy/progress/create/",
+        "https://api.skill.college/skillAcademy/progress/create/",
         {
           method: "POST",
           headers: headers,
@@ -92,7 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const headers = await getHeaders();
       const response = await fetch(
-        "https://dev-api.skill.college/skillAcademy/progress/getAll",
+        "https://api.skill.college/skillAcademy/progress/getAll",
         { headers }
       );
       if (!response.ok) {
@@ -242,74 +243,76 @@ document.addEventListener("DOMContentLoaded", async () => {
     lessonContent.style.display = "block"; // Show lesson content after loading
     taskContent.style.display = "block"; // Show task content after loading
 
-    document.getElementById("runCode").addEventListener("click", async (event) => {
-      const userCode = codeInput.value;
-      const output = `
+    document
+      .getElementById("runCode")
+      .addEventListener("click", async (event) => {
+        const userCode = codeInput.value;
+        const output = `
                 <html>
                     <body>
                         <pre>${userCode}</pre>
                     </body>
                 </html>
             `;
-      outputFrame.srcdoc = output;
+        outputFrame.srcdoc = output;
 
-      const codeTab = document.querySelector(".tablink[data-tab='Code']");
-      const outputTab = document.querySelector(".tablink[data-tab='Output']");
-      document.querySelectorAll(".tablink").forEach(tab => {
-        tab.classList.remove("active");
-      });
-    
-      // Hide all tab contents
-      document.querySelectorAll(".tabcontent").forEach(content => {
-        content.style.display = "none";
-      });
-    
-      // Show the Output tab content
-      document.getElementById("Output").style.display = "block";
-    
-      // Add active class to Output tab
-      outputTab.classList.add("active");
-      //openTab(event, "Output");
+        const codeTab = document.querySelector(".tablink[data-tab='Code']");
+        const outputTab = document.querySelector(".tablink[data-tab='Output']");
+        document.querySelectorAll(".tablink").forEach((tab) => {
+          tab.classList.remove("active");
+        });
 
-      // console.log(tasks);
-      // console.log(tasks.length);
-      // Validate code
-      for (let index = 0; index < tasks.length; index++) {
-        const task = tasks[index];
-        // console.log("Task Out of IF : " + task);
-        const checkbox = document.getElementById(`task_${index + 1}`);
-        if (validateCode(userCode, task.validate_code)) {
-          // console.log(index + 1);
-          // console.log("Task In If : ", task);
+        // Hide all tab contents
+        document.querySelectorAll(".tabcontent").forEach((content) => {
+          content.style.display = "none";
+        });
 
-          checkbox.checked = true;
-          const progress = {
-            course_id: "58f8124b-0d4f-42a8-9dd8-3499ab12cf02",
-            topic_id: exercise.topic_id,
-            exercise_id: exercise.id,
-            task_id: task.id,
-            completed: true,
-          };
-          // console.log("Progress body : ", progress);
-          try {
-            // console.log("I am calling");
-            await createOrUpdateProgress(progress);
-          } catch (error) {
-            // console.error("Error updating progress:", error);
-            // Handle error as needed, e.g., notify the user
+        // Show the Output tab content
+        document.getElementById("Output").style.display = "block";
+
+        // Add active class to Output tab
+        outputTab.classList.add("active");
+        //openTab(event, "Output");
+
+        // console.log(tasks);
+        // console.log(tasks.length);
+        // Validate code
+        for (let index = 0; index < tasks.length; index++) {
+          const task = tasks[index];
+          // console.log("Task Out of IF : " + task);
+          const checkbox = document.getElementById(`task_${index + 1}`);
+          if (validateCode(userCode, task.validate_code)) {
+            // console.log(index + 1);
+            // console.log("Task In If : ", task);
+
+            checkbox.checked = true;
+            const progress = {
+              course_id: "58f8124b-0d4f-42a8-9dd8-3499ab12cf02",
+              topic_id: exercise.topic_id,
+              exercise_id: exercise.id,
+              task_id: task.id,
+              completed: true,
+            };
+            // console.log("Progress body : ", progress);
+            try {
+              // console.log("I am calling");
+              await createOrUpdateProgress(progress);
+            } catch (error) {
+              // console.error("Error updating progress:", error);
+              // Handle error as needed, e.g., notify the user
+            }
+          } else {
+            checkbox.checked = false;
           }
-        } else {
-          checkbox.checked = false;
         }
-      }
-      const allTasksCompleted = tasks.every((task, index) => {
-        const checkbox = document.getElementById(`task_${index + 1}`);
-        return checkbox.checked;
+        const allTasksCompleted = tasks.every((task, index) => {
+          const checkbox = document.getElementById(`task_${index + 1}`);
+          return checkbox.checked;
+        });
+        // console.log(allTasksCompleted);
+        nextExerciseButton.disabled = !allTasksCompleted;
+        // Enable next exercise button when all tasks are completed
       });
-      // console.log(allTasksCompleted);
-      nextExerciseButton.disabled = !allTasksCompleted;
-      // Enable next exercise button when all tasks are completed
-    });
 
     const allTasksCompleted = tasks.every((task, index) => {
       const checkbox = document.getElementById(`task_${index + 1}`);
@@ -346,7 +349,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const exercise = exercises[currentExerciseIndex];
       const params = new URLSearchParams(window.location.search);
       const topicId = params.get("topicId");
-      console.log("Setting Curr in next: ",currentExerciseIndex);
+      console.log("Setting Curr in next: ", currentExerciseIndex);
 
       localStorage.setItem("currentExerciseIndex", currentExerciseIndex); // Save index in sessionStorage
       // window.location.href = `lesson.html?topicId=${topicId}&currentExerciseIndex=${currentExerciseIndex}`;
@@ -361,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     currentExerciseIndex--;
     if (currentExerciseIndex >= 0) {
-      console.log("Setting Curr in privios: ",currentExerciseIndex);
+      console.log("Setting Curr in privios: ", currentExerciseIndex);
 
       localStorage.setItem("currentExerciseIndex", currentExerciseIndex); // Save index in sessionStorage
       loadExercise();
@@ -438,7 +441,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         //   firstIncompleteExerciseIndex !== -1
         //     ? firstIncompleteExerciseIndex
         //     : 0;
-          console.log("Setting Curr: ",currentExerciseIndex);
+        console.log("Setting Curr: ", currentExerciseIndex);
         // localStorage.setItem("currentExerciseIndex", currentExerciseIndex); // Save index in sessionStorage
 
         // console.log("Setting currentExerciseIndex to:", currentExerciseIndex); // Debugging output
